@@ -1,53 +1,26 @@
-import { Collection, Db, MongoClient } from "mongodb";
+import lowdb, { LowdbAsync, LowdbSync, AdapterAsync, AdapterSync } from "lowdb";
+import FileAsync from "lowdb/adapters/FileAsync";
+import Memory from "lowdb/adapters/Memory";
 
-const COLLECTION_NAME_DICT = {};
-
-interface DocumentTypeDict {}
-
-export interface DBServiceOptions {
-  host: string;
-  port: number;
-  name: string;
-}
+const DB_FILE = "db.json";
 
 export class DBService {
-  protected db!: Db;
+  private db!: LowdbAsync<AdapterAsync>;
+  private memory = lowdb(new Memory(DB_FILE));
 
-  readonly ready: Promise<void>;
+  async ready(): Promise<void> {
+    this.db = await lowdb(new FileAsync(DB_FILE));
 
-  constructor(options: DBServiceOptions) {
-    this.ready = this.initialize(options);
+    console.log("DBService is ready ...");
   }
 
-  collectionOfType<TType extends keyof DocumentTypeDict>(
-    type: TType
-  ): Collection<DocumentTypeDict[TType]> {
-    let name = COLLECTION_NAME_DICT[type];
-    return this.db.collection(name);
+  async get(key: string, memory = false): Promise<unknown> {
+    return memory ? this.memory.get(key).value() : this.db.get(key).value();
   }
 
-  collection<T>(name: string): Collection<T> {
-    return this.db.collection(name);
-  }
-
-  async dropDatabase(): Promise<void> {
-    return this.db.dropDatabase();
-  }
-
-  private async initialize({
-    host,
-    port,
-    name
-  }: DBServiceOptions): Promise<void> {
-    let uri = `mongodb://${host}:${port}`;
-
-    let client = await MongoClient.connect(uri, {
-      useNewUrlParser: true,
-      ignoreUndefined: true
-    });
-
-    this.db = client.db(name);
-
-    console.log(`Connected to MongoDB ${uri}`);
+  async set(key: string, value: unknown, memory = false): Promise<void> {
+    memory
+      ? this.memory.set(key, value).write()
+      : this.db.set(key, value).write();
   }
 }

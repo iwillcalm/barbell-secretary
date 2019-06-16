@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>关爱小杠玲，从我做起</title>
+  </head>
+  <body>
+    <script>
+      fetch("./api/initialize")
+        .then(res => res.json())
+        .then(
+          ({ data }) =>
+            data ||
+            fetch(`./api/saveToken?token=${prompt("输入初始化访问密码")}`)
+        )
+        .then(print);
+
+      function print() {
+        document.body.innerText = "已初始化，功能开发中";
+      }
+    </script>
+  </body>
+</html>

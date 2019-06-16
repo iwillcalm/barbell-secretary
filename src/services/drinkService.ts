@@ -1,3 +1,5 @@
+import { DBService } from "./dbService";
+
 const DRINK_TIP = `小杠玲小秘书：喝水功能
  - 回复 hs:on 开启喝水提示
  - 回复 hs:off 开启喝水提示
@@ -5,6 +7,8 @@ const DRINK_TIP = `小杠玲小秘书：喝水功能
 `;
 
 export class DrinkService {
+  constructor(private dbService: DBService) {}
+
   getTip(): string {
     return DRINK_TIP;
   }
