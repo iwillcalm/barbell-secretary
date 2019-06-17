@@ -5,21 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>关爱小杠玲，从我做起</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
   </head>
   <body>
+    <button onclick="getQrcode()">获取登录二维码</button> <br />
+    <span id="tip"></span><br />
+    <div id="content"></div>
     <script>
-      fetch("./api/initialize")
-        .then(res => res.json())
-        .then(
-          ({ data }) =>
-            data ||
-            fetch(`./api/saveToken?token=${prompt("输入初始化访问密码")}`)
-        )
-        .then(print);
-
-      function print() {
-        document.body.innerText = "已初始化，功能开发中";
+      function main() {
+        fetch(getPath("initialize"))
+          .then(res => res.json())
+          .then(
+            ({ data }) =>
+              data ||
+              fetch(
+                `${getPath("saveToken")}?token=${prompt("输入初始化访问密码")}`
+              ).then(({ data: token }) => token && setToken(token))
+          )
+          .then(() => (tip.innerHTML = "已初始化，功能开发中"));
       }
+
+      function getQrcode() {
+        content.innerHTML = "二维码获取中 ...";
+        fetch(getPath("qrcode"))
+          .then(res => res.json())
+          .then(({ data }) => typeof data === "string" && loadQrcode(data))
+          .catch(() => (content.innerHTML = "获取失败请重试 ..."));
+      }
+
+      function loadQrcode(url) {
+        let qrcode = new Image();
+        qrcode.src = url;
+        qrcode.onload = () => content.replaceChild(qrcode, content.firstChild);
+      }
+
+      function getPath(params) {
+        return `./api/${params}`;
+      }
+
+      function setToken(token) {
+        localStorage.setItem("token", token);
+      }
+
+      // run
+      main();
     </script>
   </body>
 </html>

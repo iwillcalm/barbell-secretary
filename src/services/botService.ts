@@ -1,9 +1,10 @@
 import { Wechaty, Message } from "wechaty";
 import { ContactSelf, Contact } from "wechaty/dist/src/user";
-import Qrcode from "qrcode-terminal";
 import { DrinkService } from "./drinkService";
 
 export class BotService {
+  qrcodeUrl: string | undefined;
+
   private bot: Wechaty;
   private she: Contact | undefined;
 
@@ -13,7 +14,12 @@ export class BotService {
   }
 
   private onScan = (qrcode: string) => {
-    Qrcode.generate(qrcode, { small: true });
+    // console qrcode to terminal
+    // Qrcode.generate(qrcode, { small: true });
+
+    this.qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+      qrcode
+    )}`;
   };
 
   private onLogin = async (user: ContactSelf) => {
@@ -48,7 +54,8 @@ export class BotService {
       .on("scan", this.onScan)
       .on("login", this.onLogin)
       .on("message", this.onMessage)
-      .start();
+      .start()
+      .catch(console.error);
   }
 
   private handleMessage(message: Message): void {

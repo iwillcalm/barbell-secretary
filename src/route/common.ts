@@ -14,12 +14,12 @@ export function buildCommonRoute(dbService: DBService): Router {
       let token = await dbService.get("token");
 
       if (token) {
-        return;
+        ctx.body = ResultHelper.success(false);
       }
 
       await dbService.set("token", initToken);
 
-      ctx.body = ResultHelper.success();
+      ctx.body = ResultHelper.success(true);
     })
     .get("/common", async ctx => {
       ctx.body = "WIP: 小杠玲的小秘书开发中";
