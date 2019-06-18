@@ -14,7 +14,7 @@ export class DBService {
     console.log("DBService is ready ...");
   }
 
-  async get(key: string, memory = false): Promise<unknown> {
+  async get<T>(key: string, memory = false): Promise<T> {
     return memory ? this.memory.get(key).value() : this.db.get(key).value();
   }
 

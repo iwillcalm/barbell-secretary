@@ -36,6 +36,8 @@ export class BotService {
     ${this.drinkService.getTip()}
     `;
     contact.say(tip);
+
+    this.drinkService.registerContact(contact);
   };
 
   private onMessage = (message: Message) => {
