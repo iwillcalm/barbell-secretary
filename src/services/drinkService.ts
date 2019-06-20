@@ -2,9 +2,12 @@ import { DBService } from "./dbService";
 import { scheduleJob, Job } from "node-schedule";
 import { Contact } from "wechaty";
 
-const DRINK_KEY = "drink_start";
+const DRINK_START_KEY = "drink_start";
+const DRINK_TIMES_KEY = "drink_times";
+const DRINK_INTERVAL_KEY = "drink_interval";
 
-const DRINK_TIP = `小杠玲小秘书：喝水功能
+const DRINK_TIP = `
+ 小杠玲小秘书：喝水功能
  - hs:on 开启喝水提示
  - hs:off 关闭喝水提示
  - hs:c20 每日最多提醒次数
@@ -15,13 +18,13 @@ const DRINK_TIP = `小杠玲小秘书：喝水功能
 export class DrinkService {
   private processJob: Job | undefined;
   private drinkJob: Job | undefined;
-  private todayTimes = 0;
   private contact: Contact | undefined;
+  private todayTimes = 0;
 
   constructor(private dbService: DBService) {
-    scheduleJob("0 0 2 * * *", async () => {
+    scheduleJob("0 0 2 * * * ", async () => {
       let [hour, minute] = (await this.dbService.get<[] | undefined>(
-        DRINK_KEY
+        DRINK_START_KEY
       )) || [9, 0];
 
       this.todayTimes = 0;
@@ -71,7 +74,7 @@ export class DrinkService {
             return "次数不对头 ！";
           }
 
-          this.dbService.set("drink_times", times);
+          this.dbService.set(DRINK_TIMES_KEY, times);
           this.restartJob();
 
           return `设置成功，每天会提醒你 ${times} 次噢`;
@@ -86,7 +89,7 @@ export class DrinkService {
             return "咋能两个小时都不喝水 ！";
           }
 
-          this.dbService.set("drink_interval", interval);
+          this.dbService.set(DRINK_INTERVAL_KEY, interval);
           this.restartJob();
 
           return `设置成功，每 ${interval} 分钟提醒你喝一次水`;
@@ -108,7 +111,7 @@ export class DrinkService {
             return "六点之前还是睡觉觉比较好 ~";
           }
 
-          this.dbService.set(DRINK_KEY, [hour, minute]);
+          this.dbService.set(DRINK_START_KEY, [hour, minute]);
 
           return `时间设置成功，明天开始就 ${command} 开始提醒你噢~`;
         }
@@ -116,16 +119,20 @@ export class DrinkService {
   }
 
   async createSchedule(): Promise<void> {
-    let interval = (await this.dbService.get("drink_interval")) || 15;
+    let interval = (await this.dbService.get(DRINK_INTERVAL_KEY)) || 15;
 
-    this.drinkJob = scheduleJob(`* /${interval} * * * *`, async () => {
+    this.drinkJob = scheduleJob(`0 */${interval} * * * *`, async () => {
       this.sendToContact("小秘书提醒：该喝水啦 ~");
 
       this.todayTimes++;
 
-      let times = (await this.dbService.get("drink_times")) || 20;
+      let times = (await this.dbService.get<number>(DRINK_TIMES_KEY)) || 20;
 
-      if (this.todayTimes === times) {
+      if (this.todayTimes >= times) {
+        this.sendToContact(
+          `小秘书提醒：今日共 ${this.todayTimes} 次提醒已完成 ~`
+        );
+
         this.cancelSchedule();
       }
     });

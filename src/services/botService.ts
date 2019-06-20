@@ -1,6 +1,7 @@
 import { Wechaty, Message } from "wechaty";
 import { ContactSelf, Contact } from "wechaty/dist/src/user";
 import { DrinkService } from "./drinkService";
+import Qrcode from "qrcode-terminal";
 
 export class BotService {
   qrcodeUrl: string | undefined;
@@ -15,7 +16,7 @@ export class BotService {
 
   private onScan = (qrcode: string) => {
     // console qrcode to terminal
-    // Qrcode.generate(qrcode, { small: true });
+    Qrcode.generate(qrcode, { small: true });
 
     this.qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
       qrcode
@@ -23,7 +24,9 @@ export class BotService {
   };
 
   private onLogin = async (user: ContactSelf) => {
-    let contact = await this.bot.Contact.find({ alias: "小杠玲" });
+    console.log("微信已登录 ...");
+
+    let contact = await this.bot.Contact.find({ alias: "小秘书" });
 
     if (!contact) {
       return;
