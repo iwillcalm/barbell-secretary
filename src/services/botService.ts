@@ -26,7 +26,7 @@ export class BotService {
   private onLogin = async (user: ContactSelf) => {
     console.log("微信已登录 ...");
 
-    let contact = await this.bot.Contact.find({ alias: "小秘书" });
+    let contact = await this.bot.Contact.find({ alias: "小杠玲" });
 
     if (!contact) {
       return;
