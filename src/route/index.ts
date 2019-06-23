@@ -6,6 +6,6 @@ import { buildBotRoute } from "./bot";
 export function buildRoutes({ dbService, botService }: Services): Router {
   return new Router().use(
     buildCommonRoute(dbService).routes(),
-    buildBotRoute(botService).routes()
+    buildBotRoute(botService, dbService).routes()
   );
 }

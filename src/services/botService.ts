@@ -1,7 +1,9 @@
 import { Wechaty, Message } from "wechaty";
 import { ContactSelf, Contact } from "wechaty/dist/src/user";
 import { DrinkService } from "./drinkService";
-import Qrcode from "qrcode-terminal";
+// import Qrcode from "qrcode-terminal";
+import { DBService } from "./dbService";
+import { DEFAULT_WECHAT_NICK } from "../config";
 
 export class BotService {
   qrcodeUrl: string | undefined;
@@ -9,14 +11,43 @@ export class BotService {
   private bot: Wechaty;
   private she: Contact | undefined;
 
-  constructor(private drinkService: DrinkService) {
+  constructor(
+    private dbService: DBService,
+    private drinkService: DrinkService
+  ) {
     this.bot = Wechaty.instance();
+
     this.init();
+  }
+
+  async updateShe(): Promise<void> {
+    let alias =
+      (await this.dbService.get<string>("nick")) || DEFAULT_WECHAT_NICK;
+
+    console.log(alias);
+
+    let contact = await this.bot.Contact.find({ alias });
+
+    console.log(contact);
+
+    if (!contact) {
+      return;
+    }
+
+    this.she = contact;
+
+    let tip = `
+    😘小秘书已上线
+    ${this.drinkService.getTip()}
+    `;
+    contact.say(tip);
+
+    this.drinkService.registerContact(contact);
   }
 
   private onScan = (qrcode: string) => {
     // console qrcode to terminal
-    Qrcode.generate(qrcode, { small: true });
+    // Qrcode.generate(qrcode, { small: true });
 
     this.qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
       qrcode
@@ -26,21 +57,7 @@ export class BotService {
   private onLogin = async (user: ContactSelf) => {
     console.log("微信已登录 ...");
 
-    let contact = await this.bot.Contact.find({ alias: "小杠玲" });
-
-    if (!contact) {
-      return;
-    }
-
-    this.she = contact;
-
-    let tip = `
-    -- 小秘书已登录 --
-    ${this.drinkService.getTip()}
-    `;
-    contact.say(tip);
-
-    this.drinkService.registerContact(contact);
+    await this.updateShe();
   };
 
   private onMessage = (message: Message) => {

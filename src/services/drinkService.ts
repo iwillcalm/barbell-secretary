@@ -7,12 +7,12 @@ const DRINK_TIMES_KEY = "drink_times";
 const DRINK_INTERVAL_KEY = "drink_interval";
 
 const DRINK_TIP = `
- 小杠玲小秘书：喝水功能
- - hs:on 开启喝水提示
- - hs:off 关闭喝水提示
- - hs:c20 每日最多提醒次数
- - hs:t15 每次提醒间隔分钟
- - hs:09:00 修改每日提醒开始时间
+  ☕ 1.喝水功能
+    🚥 hs:on 开启喝水提示
+    🚧 hs:off 关闭喝水提示
+    📝 hs:c20 每日最多提醒次数
+    ⏰ hs:t15 每次提醒间隔分钟
+    🕘 hs:09:00 每日提醒开始时间
 `;
 
 export class DrinkService {

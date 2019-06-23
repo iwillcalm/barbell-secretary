@@ -10,7 +10,7 @@ export function buildCommonRoute(dbService: DBService): Router {
       ctx.body = ResultHelper.success(!!token);
     })
     .get("/saveToken", async ctx => {
-      let { token: initToken } = ctx.request.query;
+      let { token: initToken } = ctx.query;
       let token = await dbService.get("token");
 
       if (token) {

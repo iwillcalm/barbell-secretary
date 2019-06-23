@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>关爱小杠玲，从我做起</title>
+    <title>小杠玲的微信秘书</title>
     <style>
       body {
         display: flex;
@@ -16,6 +16,11 @@
   </head>
   <body>
     <button onclick="getQrcode()">获取登录二维码</button> <br />
+    <div>
+      <input id="nick" placeholder="设置主人的微信昵称" />
+      <button onclick="setNick()">确定</button>
+    </div>
+    <br />
     <span id="tip"></span><br />
     <div id="content"></div>
     <script>
@@ -27,7 +32,7 @@
               data ||
               fetch(
                 `${getPath("saveToken")}?token=${prompt("输入初始化访问密码")}`
-              ).then(({ data: token }) => token && setToken(token))
+              )
           )
           .then(() => (tip.innerHTML = "已初始化，功能开发中"));
       }
@@ -50,8 +55,10 @@
         return `./api/${params}`;
       }
 
-      function setToken(token) {
-        localStorage.setItem("token", token);
+      function setNick() {
+        fetch(`${getPath("saveNick")}?nick=${nick.value}`)
+          .then(res => res.json())
+          .then(({ data }) => alert(`昵称设置${data ? "成功" : "失败"}`));
       }
 
       // run
