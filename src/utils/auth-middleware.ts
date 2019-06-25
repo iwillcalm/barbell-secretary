@@ -4,7 +4,9 @@ import { API_PREFIX } from "../config";
 
 const USERS = ["boen", "dl"];
 
-const ALLOWED_PATH = ["/initialize"].map(path => API_PREFIX + path);
+const ALLOWED_PATH = ["/initialize", "/saveToken"].map(
+  path => API_PREFIX + path
+);
 
 type AuthToken = () => Promise<string> | string;
 

@@ -15,6 +15,7 @@ export function buildCommonRoute(dbService: DBService): Router {
 
       if (token) {
         ctx.body = ResultHelper.success(false);
+        return;
       }
 
       await dbService.set("token", initToken);
